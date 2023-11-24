@@ -9,23 +9,23 @@ fpsClock = pygame.time.Clock()
 screen_size=(1280,720)
 screen=pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Car Bet")
-icon=pygame.image.load(r'Image\car2.png')
+icon=pygame.image.load(r'MainGame\Image\car2.png')
 pygame.display.set_icon(icon)
 #Thêm background
-bg=pygame.transform.scale(pygame.image.load(r'Image\background.png'),screen_size)
+bg=pygame.transform.scale(pygame.image.load(r'MainGame\Image\background.png'),screen_size)
 end_bg=1100
 start_bg=200
 #Load ảnh xe
-car_pic2=pygame.transform.scale(pygame.image.load(r'Image\car2.png'),(150,150))
-car_pic1=pygame.transform.scale(pygame.image.load(r'Image\car1.png'),(150,150))
-item_pic=pygame.image.load(r'Image\item.png')
+car_pic2=pygame.transform.scale(pygame.image.load(r'MainGame\Image\car2.png'),(150,150))
+car_pic1=pygame.transform.scale(pygame.image.load(r'MainGame\Image\car1.png'),(150,150))
+item_pic=pygame.image.load(r'MainGame\Image\item.png')
 #Màu
 white=(255,255,255)
 black=(0,0,0)
 #Tham số
 
 #Set font
-font = pygame.font.SysFont(None, 50, bold=True, italic=False)
+font = pygame.font.SysFont("Arial", 50, bold=True, italic=False)
 
 #Hàm
 #Vẽ chữ
@@ -36,13 +36,14 @@ def draw_text(text, font, color, surface, x, y):
     surface.blit(text_obj, text_rect)        
 #Class
 class Car():
-    def __init__(self,image,lane,x,rank):
+    def __init__(self,image,lane):
         self.image=image
-        self.x=x
         self.y=100+(lane-1)*140
-        self.rank=rank
+    def draw(self,x,rank):
+        self.x=x
         self.rect=self.image.get_rect(center=(self.x,self.y))
         screen.blit(self.image,self.rect)
+        self.rank=rank
     def is_in(self,x,y):
         if self.x==x and self.y==y:
             return True
@@ -103,6 +104,13 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
     bg_x=0
     rank=1
     ranked=False
+
+    player=Car(player_pic,2)
+    com1=Car(com1_pic,1)
+    com2=Car(com2_pic,3)
+    com3=Car(com3_pic,4)
+    com4=Car(com4_pic,5)
+    
     item1=Item()
     item2=Item()
     enough_item=False
@@ -116,13 +124,14 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
             if event.type==pygame.MOUSEBUTTONDOWN:
                 start=True
         screen.blit(bg,(bg_x,0))
-        player=Car(player_pic,2,player_x,player_rank)
-        com1=Car(com1_pic,1,com1_x,com1_rank)
-        com2=Car(com2_pic,3,com2_x,com2_rank)
-        com3=Car(com3_pic,4,com3_x,com3_rank)
-        com4=Car(com4_pic,5,com4_x,com4_rank)
+        #Vẽ xe
+        player.draw(player_x,player_rank)
+        com1.draw(com1_x,com1_rank)
+        com2.draw(com2_x,com2_rank)
+        com3.draw(com3_x,com3_rank)
+        com4.draw(com4_x,com4_rank)
         if start:
-        #Chạy xe
+        #Cập nhật toạ độ cho xe
             if not(player.finish()):
                 player_x+=random.randint(0,1)
             if not(com1.finish()):
