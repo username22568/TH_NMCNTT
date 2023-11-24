@@ -22,7 +22,9 @@ item_pic=pygame.image.load(r'MainGame\Image\item.png')
 #Màu
 white=(255,255,255)
 black=(0,0,0)
+red=(255,0,0)
 #Tham số
+
 
 #Set font
 font = pygame.font.SysFont("Arial", 50, bold=True, italic=False)
