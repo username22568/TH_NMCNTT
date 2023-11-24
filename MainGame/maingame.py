@@ -25,6 +25,7 @@ black=(0,0,0)
 red=(255,0,0)
 #Tham số
 
+
 #Set font
 font = pygame.font.SysFont("Arial", 50, bold=True, italic=False)
 
