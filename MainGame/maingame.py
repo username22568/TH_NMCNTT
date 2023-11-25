@@ -25,7 +25,6 @@ black=(0,0,0)
 red=(255,0,0)
 #Tham số
 
-
 #Set font
 font = pygame.font.SysFont("Arial", 50, bold=True, italic=False)
 
@@ -38,9 +37,11 @@ def draw_text(text, font, color, surface, x, y):
     surface.blit(text_obj, text_rect)        
 #Class
 class Car():
-    def __init__(self,image,lane):
+    def __init__(self,image,lane,buff_speed=False,better_start=False):
         self.image=image
         self.y=100+(lane-1)*140
+        self.buff_speed=buff_speed
+        self.better_start=better_start
     def draw(self,x,rank):
         self.x=x
         self.rect=self.image.get_rect(center=(self.x,self.y))
@@ -88,11 +89,28 @@ class Buttons():
     def is_in(self,x,y):
         if x>self.x and x<self.x+self.height and y>self.y and y<self.y+self.width:
             return True
-
-def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
-    #Vòng lặp game
-    start=False
-    player_x=start_bg
+#Vào đua
+def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic,buff_speed,better_start):
+    #Khởi tạo xe 
+    player=Car(player_pic,2,buff_speed,better_start)
+    com1=Car(com1_pic,1)
+    com2=Car(com2_pic,3)
+    com3=Car(com3_pic,4)
+    com4=Car(com4_pic,5)
+    #Khởi tạo biến item
+    item1=Item()
+    item2=Item()
+    enough_item=False
+    num_item=0
+    #Các tham số
+    if player.better_start:
+        player_x=start_bg+100
+    else:
+        player_x=start_bg
+    if player.buff_speed:
+        max_speed=2
+    else:
+        max_speed=1
     com1_x=start_bg
     com2_x=start_bg
     com3_x=start_bg
@@ -106,18 +124,8 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
     bg_x=0
     rank=1
     ranked=False
-
-    player=Car(player_pic,2)
-    com1=Car(com1_pic,1)
-    com2=Car(com2_pic,3)
-    com3=Car(com3_pic,4)
-    com4=Car(com4_pic,5)
-    
-    item1=Item()
-    item2=Item()
-    enough_item=False
-    num_item=0
-
+    #Vòng lặp game
+    start=False
     while running:
         fpsClock.tick(FPS)
         for event in pygame.event.get():
@@ -135,7 +143,7 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
         if start:
         #Cập nhật toạ độ cho xe
             if not(player.finish()):
-                player_x+=random.randint(0,1)
+                player_x+=random.randint(0,max_speed)
             if not(com1.finish()):
                 com1_x+=random.randint(0,1)
             if not(com2.finish()):
@@ -145,7 +153,8 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
             if not(com4.finish()):
                 com4_x+=random.randint(0,1)
             #Đưa item vào
-            if not(enough_item):
+            if not(enough_item): #Nếu chưa đủ 2 item đang xuất hiện
+                #Nếu item 1 chưa xuất hiện
                 if not(item1.exist):
                     lane_item1=random.randint(1,5)
                     item1_y=100+(lane_item1-1)*140
@@ -153,8 +162,10 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
                     if item1_x<end_bg:
                         item1.exist=True
                         num_item+=1
+                #Vẽ item 1
                 if item1.exist:
                     item1.draw(item1_x,item1_y)
+                    #Xử lý nếu xe chạm vào item
                     if player.is_in(item1_x,item1_y):
                         player_x=item1.affect(player_x)
                         num_item-=1
@@ -175,6 +186,7 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
                         com4_x=item1.affect(com4_x)
                         num_item-=1
                         item1.exist=False
+                #Tương tự với item 2
                 if not(item2.exist):
                     lane_item2=random.randint(1,5)
                     item2_y=100+(lane_item2-1)*140
@@ -204,6 +216,7 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
                         com4_x=item2.affect(com4_x)
                         num_item-=1
                         item2.exist=False
+                #Nếu đã đủ 2 item -> không thêm item nữa
                 if num_item>2:
                     enough_item=True
                 else:
@@ -238,23 +251,61 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic):
 
         pygame.display.update()
     return player_rank
-
-
+def shopping():
+    #Khởi tạo nút
+    buy_buff_speed=Buttons(200,100,car_pic1,340,360)
+    buy_better_start=Buttons(200,100,car_pic1,740,360)
+    quit_bt=Buttons(200,100,item_pic,540,570)
+    #Tham số
+    buff_speed=False
+    better_start=False
+    #Vòng lặp
+    running_shop=True
+    while running_shop:
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                spot=event.pos
+                if buy_buff_speed.is_in(spot[0],spot[1]):
+                    buff_speed=True
+                    buy_buff_speed.img=item_pic
+                if buy_better_start.is_in(spot[0],spot[1]):
+                    better_start=True
+                    buy_better_start.img=item_pic
+                if quit_bt.is_in(spot[0],spot[1]):
+                    running_shop=False
+        screen.fill(black)
+        buy_better_start.draw()
+        buy_buff_speed.draw()
+        quit_bt.draw()
+        pygame.display.update()
+    return (buff_speed,better_start)
+#Sảnh chờ
 def main_menu():
-    running_menu=True
+    #Khởi tạo nút
     start_bt=Buttons(200,100,item_pic,540,570)
     shop_bt=Buttons(100,100,item_pic,50,570)
+    buff=(False,False)
+    #Vòng lặp
+    running_menu=True
     while running_menu:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
             if event.type==pygame.MOUSEBUTTONDOWN:
                 spot=event.pos
+                #Xử lý thao tác trên các nút
                 if start_bt.is_in(spot[0],spot[1]):
                     running_menu=False
-                    run_game(car_pic2,car_pic2,car_pic2,car_pic2,car_pic2)
+                    run_game(car_pic2,car_pic2,car_pic2,car_pic2,car_pic2,buff[0],buff[1])
+                    running_menu=True
+                if shop_bt.is_in(spot[0],spot[1]):
+                    running_menu=False
+                    buff=shopping()
                     running_menu=True
         screen.fill(black)
+        #Vẽ nút
         shop_bt.draw()
         start_bt.draw()
         pygame.display.update()
