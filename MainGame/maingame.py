@@ -9,16 +9,16 @@ fpsClock = pygame.time.Clock()
 screen_size=(1280,720)
 screen=pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Car Bet")
-icon=pygame.image.load(r'MainGame\Image\car2.png')
+icon=pygame.image.load(r'D:\MainGame\Image\item.png')
 pygame.display.set_icon(icon)
 #Thêm background
-bg=pygame.transform.scale(pygame.image.load(r'MainGame\Image\background.png'),screen_size)
+bg=pygame.transform.scale(pygame.image.load(r'D:\MainGame\Image\background.png'),screen_size)
 end_bg=1100
 start_bg=200
 #Load ảnh xe
-car_pic2=pygame.transform.scale(pygame.image.load(r'MainGame\Image\car2.png'),(150,150))
-car_pic1=pygame.transform.scale(pygame.image.load(r'MainGame\Image\car1.png'),(150,150))
-item_pic=pygame.image.load(r'MainGame\Image\item.png')
+car_pic2=pygame.transform.scale(pygame.image.load(r'D:\MainGame\Image\car2.png'),(150,150))
+car_pic1=pygame.transform.scale(pygame.image.load(r'D:\MainGame\Image\car2.png'),(150,150))
+item_pic=pygame.image.load(r'D:\MainGame\Image\item.png')
 #Màu
 white=(255,255,255)
 black=(0,0,0)
@@ -27,7 +27,7 @@ red=(255,0,0)
 
 #Set font
 font = pygame.font.SysFont("Arial", 50, bold=True, italic=False)
-
+new_font = pygame.font.SysFont("Arial", 30, bold=True, italic=False)
 #Hàm
 #Vẽ chữ
 def draw_text(text, font, color, surface, x, y):
@@ -124,6 +124,7 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic,buff_speed,better_st
     bg_x=0
     rank=1
     ranked=False
+    check_rank = True
     #Vòng lặp game
     start=False
     while running:
@@ -248,8 +249,13 @@ def run_game(player_pic,com1_pic,com2_pic,com3_pic,com4_pic,buff_speed,better_st
             draw_text(str(com2.rank),font,white,screen,end_bg+100,com2.y)
             draw_text(str(com3.rank),font,white,screen,end_bg+100,com3.y)
             draw_text(str(com4.rank),font,white,screen,end_bg+100,com4.y)
+            # bảng xếp hạng
+            check_rank = ranked_rs(r'Image\item.png',screen_size[0]/2,4*screen_size[1]/5,player,com1,com2,com3,com4)
 
         pygame.display.update()
+        #thoát ra menu
+        if check_rank ==False:
+            break
     return player_rank
 def shopping():
     #Khởi tạo nút
@@ -309,4 +315,80 @@ def main_menu():
         shop_bt.draw()
         start_bt.draw()
         pygame.display.update()
-main_menu()
+
+
+
+def main_menu():
+    running_menu=True
+    start_bt=Buttons(200,100,item_pic,540,570)
+    shop_bt=Buttons(100,100,item_pic,50,570)
+    while running_menu:
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                spot=event.pos
+                if start_bt.is_in(spot[0],spot[1]):
+                    running_menu=False
+                    run_game(car_pic2,car_pic2,car_pic2,car_pic2,car_pic2,1,1)
+                    running_menu=True
+        screen.fill(black)
+        shop_bt.draw()
+        start_bt.draw()
+        pygame.display.update()
+def ranked_rs(image,width,height,player,com1,com2,com3,com4):
+    rank_img = pygame.transform.scale(pygame.image.load(image),(width,height))
+    rank_rect = rank_img.get_rect(topleft=(screen_size[0]/4,screen_size[1]/10))
+    running_rank = True
+    home_bt = Buttons(screen_size[0]/16,screen_size[1]/8,item_pic,screen_size[0]/4,9*screen_size[1]/10)
+    lt = [player,com1,com2,com3,com4]
+    # sắp xếp thứ tự xếp hạng
+    j=0
+    while j < len(lt):
+        i=j
+        sw=False
+        while i < len(lt)-1:
+            if lt[i].rank > lt[i+1].rank :
+                sw = True
+                temp=lt[i]
+                lt[i]=lt[i+1]
+                lt[i+1]=temp
+            i+=1
+        if sw == False:
+            break
+        
+
+
+    #tên tạm thời
+    player.name ="player"
+    com1.name ="com1"
+    com2.name ="com2"
+    com3.name ="com3"
+    com4.name ="com4"
+
+
+    while running_rank:
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                spot=event.pos
+                if home_bt.is_in(spot[0],spot[1]):
+                    running_rank = False
+
+        screen.blit(rank_img,rank_rect)
+        #vẽ nút
+        home_bt.draw()
+        draw_text('Home',new_font,red,screen,home_bt.x+(screen_size[0]/16)/2,home_bt.y+(screen_size[1]/8)/2)
+        draw_text('1',new_font,black,screen,screen_size[0]/4+screen_size[0]/40,3*screen_size[1]/20)
+        draw_text('2',new_font,black,screen,screen_size[0]/4+screen_size[0]/40,6*screen_size[1]/20)
+        draw_text('3',new_font,black,screen,screen_size[0]/4+screen_size[0]/40,9*screen_size[1]/20)
+        draw_text('4',new_font,black,screen,screen_size[0]/4+screen_size[0]/40,12*screen_size[1]/20)
+        draw_text('5',new_font,black,screen,screen_size[0]/4+screen_size[0]/40,15*screen_size[1]/20)
+        draw_text(str(lt[0].name),new_font,black,screen,screen_size[0]/4+screen_size[0]/5,3*screen_size[1]/20)
+        draw_text(str(lt[1].name),new_font,black,screen,screen_size[0]/4+screen_size[0]/5,6*screen_size[1]/20)
+        draw_text(str(lt[2].name),new_font,black,screen,screen_size[0]/4+screen_size[0]/5,9*screen_size[1]/20)
+        draw_text(str(lt[3].name),new_font,black,screen,screen_size[0]/4+screen_size[0]/5,12*screen_size[1]/20)
+        draw_text(str(lt[4].name),new_font,black,screen,screen_size[0]/4+screen_size[0]/5,15*screen_size[1]/20)
+        pygame.display.flip()
+    return False
